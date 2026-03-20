@@ -18,10 +18,10 @@ module.exports = (io)=> {
             //typing
 
             socket.on("typing", ()=> {
-                socket.to(roomId).emit("typing", username);
+                socket.to(roomId).emit("typing");
             });
             socket.on("stopTyping", ()=>{
-                socket.to(roomId).emit("stopTyping", username);
+                socket.to(roomId).emit("stopTyping");
             });
             //send Message
 

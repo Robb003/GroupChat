@@ -11,13 +11,13 @@ export default function ChatRoom({room, messages, user, socket}) {
             setChatMessages((prev)=> [...prev, msg]);
         });
         //for displaying when user is typing
-        socket.on("typing", (username)=>{
+        socket.on("typing", ({username})=>{
             setTypingUser(username)
         });
 
         //when user stops typing
 
-        socket.on("stopTyping", ()=>{
+        socket.on("stopTyping", ({username})=>{
             setTypingUser("")
         });
         //clean up
@@ -30,7 +30,7 @@ export default function ChatRoom({room, messages, user, socket}) {
     //somebody to see user typing
     const handleTyping= () => {
         socket.emit("typing");
-        setTimeout(()=> socket.emit("stopTyping"), 1000);
+        setTimeout(()=> socket.emit("stopTyping") ,1000);
     };
     //handle sending a message
     const handleSend = () => {
@@ -48,7 +48,7 @@ export default function ChatRoom({room, messages, user, socket}) {
                     </p>
                 ))}
             </div>
-            //when the user istyping what should happen
+            
             <div className="mb-2 text-sm text-gray-600">
                 {typingUser && `${typingUser} is typing...`}
             </div>
