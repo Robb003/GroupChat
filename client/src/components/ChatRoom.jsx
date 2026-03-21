@@ -29,8 +29,8 @@ export default function ChatRoom({room, messages, user, socket}) {
     }, []);
     //somebody to see user typing
     const handleTyping= () => {
-        socket.emit("typing");
-        setTimeout(()=> socket.emit("stopTyping") ,1000);
+        socket.emit("typing", {roomId: room._id, username: user.username});
+        setTimeout(()=> socket.emit("stopTyping", {roomId: room._id, username: user.username}) ,1000);
     };
     //handle sending a message
     const handleSend = () => {
@@ -40,7 +40,7 @@ export default function ChatRoom({room, messages, user, socket}) {
     };
     return (
         <div>
-            <h2 className="text-2xl mb-2">{room.name}</h2>
+            <h2 className="text-2xl mb-2">{ room.name }</h2>
             <div className="h-60 overflow-y-auto border mb-2 bg-gray-50">
                 {chatMessages.map((msg)=>(
                     <p key={msg._id}>
