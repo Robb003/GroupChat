@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 export default function ChatRoom({room, messages, user, socket}) {
     const [chat, setChat] = useState("");
     const [typingUser, setTypingUser] = useState("");
     const [chatMessages, setChatMessages] = useState(messages || []);
+    const typingTimeoutRef = useRef(null)
 
     useEffect(()=>{
         //for displaying message
@@ -17,7 +18,7 @@ export default function ChatRoom({room, messages, user, socket}) {
 
         //when user stops typing
 
-        socket.on("stopTyping", ({username})=>{
+        socket.on("stopTyping", ()=>{
             setTypingUser("")
         });
         //clean up
@@ -30,7 +31,14 @@ export default function ChatRoom({room, messages, user, socket}) {
     //somebody to see user typing
     const handleTyping= () => {
         socket.emit("typing", {roomId: room._id, username: user.username});
-        setTimeout(()=> socket.emit("stopTyping", {roomId: room._id, username: user.username}) ,1000);
+        //cleartimeout(typing timeout)
+        if (typingTimeoutRef.current) {
+            clearTimeout(typingTimeoutRef.current);
+        }
+
+         typingTimeoutRef.current = setTimeout(()=>{
+            socket.emit("stopTyping", {roomId: room._id, username: user.username})  
+         } ,1000);
     };
     //handle sending a message
     const handleSend = () => {
@@ -40,9 +48,9 @@ export default function ChatRoom({room, messages, user, socket}) {
     };
     return (
         <div>
-            <h2 className="text-2xl mb-2">{ room.name }</h2>
+            <h2 className="text-2xl mb-2"> { room.name }</h2>
             <div className="h-60 overflow-y-auto border mb-2 bg-gray-50">
-                {chatMessages.map((msg)=>(
+                {chatMessages.map((msg)=> (
                     <p key={msg._id}>
                         <strong>{msg.sender.username}:</strong> {msg.content}
                     </p>
@@ -50,7 +58,7 @@ export default function ChatRoom({room, messages, user, socket}) {
             </div>
             
             <div className="mb-2 text-sm text-gray-600">
-                {typingUser && `${typingUser} is typing...`}
+                { typingUser && `${typingUser} is typing...`}
             </div>
             <div className="flex gap-2">
                 <input
